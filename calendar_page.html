@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wright Ahead - Calendar</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            width: 240px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: var(--primary);
+            font-size: 22px;
+            margin-left: 10px;
+        }
+        
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--gray);
+            text-decoration: none;
+            transition: all 0.2s;
+            margin: 2px 0;
+        }
+        
+        .nav-item.active, .nav-item:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .nav-item span {
+            margin-left: 12px;
+        }
+        
+        .profile {
+            padding: 15px 20px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+        }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .profile-info {
+            margin-left: 10px;
+        }
+        
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .profile-email {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        /* Main Content Styling */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .page-header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            font-size: 24px;
+        }
+        
+        .action-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .action-button svg {
+            margin-right: 8px;
+        }
+
+        /* Calendar Specific Styling */
+        .calendar-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+        }
+        
+        .calendar-nav button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .calendar-nav button:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+        }
+        
+        .calendar-month {
+            margin: 0 15px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .calendar-view-toggle {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .calendar-view-toggle button {
+            background: none;
+            border: 1px solid var(--light-gray);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .calendar-view-toggle button.active {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+        
+        .calendar-dayname {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 14px;
+            padding: 10px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .calendar-day {
+            min-height: 120px;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: left;
+            position: relative;
+        }
+        
+        .calendar-date {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            border-radius: 50%;
+        }
+        
+        .calendar-date.today {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .calendar-date.other-month {
+            color: var(--light-gray);
+            opacity: 0.6;
+        }
+        
+        .event {
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        
+        .event.assignment {
+            background-color: #ffefef;
+            color: #e63946;
+            border-left: 3px solid #e63946;
+        }
+        
+        .event.class {
+            background-color: #e0f5ff;
+            color: #0077b6;
+            border-left: 3px solid #0077b6;
+        }
+        
+        .event.study {
+            background-color: #e5f8ee;
+            color: #2a9d8f;
+            border-left: 3px solid #2a9d8f;
+        }
+        
+        .event.other {
+            background-color: #f7f7f9;
+            color: #6c757d;
+            border-left: 3px solid #6c757d;
+        }
+        
+        .event-dots {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            display: flex;
+            gap: 2px;
+        }
+        
+        .event-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--gray);
+        }
+        
+        /* Event details section */
+        .events-container {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .event-list {
+            flex: 2;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .event-details {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .event-date {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .event-date-selector {
+            display: flex;
+            align-items: center;
+        }
+        
+        .event-date-selector button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .event-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        
+        .event-time {
+            width: 100px;
+            font-weight: 600;
+            padding-right: 10px;
+        }
+        
+        .event-content {
+            flex: 1;
+        }
+        
+        .event-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .event-subtitle {
+            font-size: 13px;
+            color: var(--gray);
+        }
+        
+        .event-category {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+        
+        .event-actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .event-actions button {
+            background: none;
+            border: 1px solid var(--light-gray);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        
+        .event-actions button:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .event-actions button svg {
+            margin-right: 5px;
+        }
+        
+        .event-actions button.delete {
+            color: #e63946;
+            border-color: #ffefef;
+        }
+        
+        .event-actions button.delete:hover {
+            background-color: #ffefef;
+        }
+        
+        .event-actions button.edit {
+            color: var(--primary);
+            border-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .event-actions button.edit:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        /* Event Detail Section */
+        .event-detail-header {
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 15px;
+        }
+        
+        .event-detail-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .event-detail-subtitle {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .event-detail-category {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .event-detail-section {
+            margin-bottom: 15px;
+        }
+        
+        .event-detail-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--gray);
+        }
+        
+        .event-detail-section p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .attachments-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .attachment {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: var(--light);
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .attachment svg {
+            margin-right: 5px;
+            color: var(--gray);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4361ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                <h1>Wright Ahead</h1>
+            </div>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="assignments_page.html" class="nav-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                        <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                    </svg>
+                    <span>Assignments</span>
+                </a>
+                <a href="syllabi_page.html" class="nav-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <span>Syllabi</span>
+                </a>
+                <a href="study_plan_page.html" class="nav-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    <span>Study Plans</span>
+                </a>
+                <a href="calendar_page.html" class="nav-item active">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>Calendar</span>
+                </a>
+                <a href="study_group_page.html" class="nav-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Study Groups</span>
+                </a>
+                <a href="settings-page.html" class="nav-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </div>
+            
+            <div class="profile">
+                <div class="avatar">JS</div>
+                <div class="profile-info">
+                    <div class="profile-name">Jamie Smith</div>
+                    <div class="profile-email">jamie@university.edu</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="page-header">
+                <h2 class="page-title">Calendar</h2>
+                <div class="calendar-view-toggle">
+                    <button class="active">Month</button>
+                    <button>Week</button>
+                    <button>Day</button>
+                    <button class="action-button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Event
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Main Calendar View -->
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                        </button>
+                        <div class="calendar-month">May 2025</div>
+                        <button>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                    <div>
+                        <button class="action-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            Today
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="calendar-grid">
+                    <!-- Day Names -->
+                    <div class="calendar-dayname">Sun</div>
+                    <div class="calendar-dayname">Mon</div>
+                    <div class="calendar-dayname">Tue</div>
+                    <div class="calendar-dayname">Wed</div>
+                    <div class="calendar-dayname">Thu</div>
+                    <div class="calendar-dayname">Fri</div>
+                    <div class="calendar-dayname">Sat</div>
+                    
+                    <!-- Week 1 -->
+                    <div class="calendar-day">
+                        <div class="calendar-date other-month">27</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date other-month">28</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date other-month">29</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date other-month">30</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">1</div>
+                        <div class="event class">ENGL 301 Class</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">2</div>
+                        <div class="event assignment">MATH 241 Quiz</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">3</div>
+                    </div>
+                    
+                    <!-- Week 2 -->
+                    <div class="calendar-day">
+                        <div class="calendar-date">4</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">5</div>
+                        <div class="event class">ENGL 301 Class</div>
+                        <div class="event class">CS 350 Class</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">6</div>
+                        <div class="event class">MATH 241 Class</div>
+                        <div class="event class">PSYC 101 Class</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">7</div>
+                        <div class="event class">ENGL 301 Class</div>
+                        <div class="event class">CS 350 Class</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">8</div>
+                        <div class="event class">MATH 241 Class</div>
+                        <div class="event class">PSYC 101 Class</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">9</div>
+                        <div class="event assignment">Research Paper Draft</div>
+                        <div class="event class">ENGL 301 Class</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">10</div>
+                    </div>
+                    
+                    <!-- Week 3 -->
+                    <div class="calendar-day">
+                        <div class="calendar-date">11</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">12</div>
+                        <div class="event class">ENGL 301 Class</div>
+                        <div class="event class">CS 350 Class</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">13</div>
+                        <div class="event class">MATH 241 Class</div>
+                        <div class="event class">PSYC 101 Class</div>
+                        <div class="event assignment">Problem Set #4</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">14</div>
+                        <div class="event class">ENGL 301 Class</div>
+                        <div class="event class">CS 350 Class</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">15</div>
+                        <div class="event class">MATH 241 Class</div>
+                        <div class="event class">PSYC 101 Class</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-date">16</div>
+                        <div class="event class">ENGL 301
